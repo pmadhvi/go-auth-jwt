@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -10,7 +9,6 @@ import (
 )
 
 func main() {
-	fmt.Println("jwt-based api authenitication starts")
 	// setup the log
 	var log = logrus.New()
 	log.SetOutput(os.Stdout)
@@ -30,6 +28,7 @@ func main() {
 	server := handler.NewServer(log, port)
 	errChan := make(chan error)
 	go func() {
+		log.Info("server started")
 		errChan <- server.Start()
 	}()
 

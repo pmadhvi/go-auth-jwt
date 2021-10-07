@@ -5,15 +5,15 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 type server struct {
-	log  *log.Logger
+	log  *logrus.Logger
 	port string
 }
 
-func NewServer(log *log.Logger, port string) *server {
+func NewServer(log *logrus.Logger, port string) *server {
 	return &server{
 		log:  log,
 		port: port,
@@ -22,9 +22,12 @@ func NewServer(log *log.Logger, port string) *server {
 func (s *server) Start() error {
 	router := mux.NewRouter()
 	loginHandler := http.HandlerFunc(s.LoginHandler)
-
+	// logging middleware is used in all request
+	router.Use(s.LoggingMiddleware)
 	router.HandleFunc("/jwt/getToken", s.GetTokenHandler).Methods("POST")
-	router.Handle("/jwt/login", s.Middleware(loginHandler)).Methods("POST")
+
+	// Making use of ValidToken(which is a middleware) to test the validity of token on all request except Get token
+	router.Handle("/jwt/login", s.ValidateTokenMiddleware(loginHandler)).Methods("POST")
 	err := http.ListenAndServe(fmt.Sprintf(":%s", s.port), router)
 	if err != nil {
 		s.log.Errorf("Could not start the server: %v", err)

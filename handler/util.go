@@ -13,7 +13,7 @@ import (
 
 func (s *server) createToken(userId uuid.UUID) (string, error) {
 	claims := jwt.MapClaims{
-		"exp":    time.Now().Add(15 * time.Second).Unix(),
+		"exp":    time.Now().Add(5 * time.Minute).Unix(),
 		"iat":    time.Now().Unix(),
 		"userid": userId,
 	}
@@ -36,27 +36,6 @@ func (s *server) extractToken(req *http.Request) string {
 	}
 	return token[1]
 }
-
-// func (s *server) verifyToken(req *http.Request) (*jwt.Token, error) {
-// 	tokenString := s.extractToken(req)
-// 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-// 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-// 			errMsg := fmt.Sprintf("invalid signing method: %v", token.Header["alg"])
-// 			s.log.Error(errMsg)
-// 			return nil, fmt.Errorf(errMsg)
-// 		}
-// 		return []byte(os.Getenv("JWTKEY")), nil
-// 	})
-// 	if err != nil {
-// 		s.log.Errorf("invalid token: %v", token)
-// 		return nil, err
-// 	}
-// 	if _, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-// 		return token, nil
-// 	}
-// 	return nil, errors.New("token not valid")
-
-// }
 
 // simple authenticate function, here it could also check if the user exist in db
 func (s *server) authenticate(userName, password string) bool {
